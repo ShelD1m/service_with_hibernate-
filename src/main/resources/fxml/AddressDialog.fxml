@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="350.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dmitry.hibernate_1.controller.AddressDialogController">
+    <GridPane hgap="10" vgap="10" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        <Label text="ID Адреса (Кв.ID):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="idField" GridPane.rowIndex="0" GridPane.columnIndex="1" editable="false" focusTraversable="false" promptText="ID Квартиры, если есть"/>
+
+        <Label text="Город:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="cityField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Регион:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="regionField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Улица:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="streetField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Дом:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="houseNumberField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Этаж:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="floorField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Номер квартиры:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="apartmentNumberField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+    </GridPane>
+    <HBox spacing="10" alignment="BOTTOM_RIGHT" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="20.0">
+        <Button text="OK" onAction="#handleOk" prefWidth="70"/>
+        <Button text="Отмена" onAction="#handleCancel" prefWidth="70"/>
+    </HBox>
+</AnchorPane>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefWidth="550.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dmitry.hibernate_1.controller.ApartmentDialogController">
+    <GridPane hgap="10" vgap="10" AnchorPane.topAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+        <Label text="ID Квартиры:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="apartmentIdField" GridPane.rowIndex="0" GridPane.columnIndex="1" editable="false" focusTraversable="false"/>
+
+        <Label text="Владелец (Арендодатель):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="ownerComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="350"/>
+
+        <Label text="Кол-во комнат:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="numberOfRoomsField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Площадь (кв.м):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="squareMetersField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Separator GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+        <Label text="Адрес" style="-fx-font-weight: bold;" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+        <Label text="Город:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="addressCityField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="Регион:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="addressRegionField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+        <Label text="Улица:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+        <TextField fx:id="addressStreetField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+        <Label text="Дом:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+        <TextField fx:id="addressHouseNumberField" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+        <Label text="Этаж:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+        <TextField fx:id="addressFloorField" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+        <Label text="Номер квартиры (адрес):" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+        <TextField fx:id="addressApartmentNumberField" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+    </GridPane>
+    <HBox spacing="10" alignment="BOTTOM_RIGHT" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="20.0">
+        <Button text="OK" onAction="#handleOk" prefWidth="70"/>
+        <Button text="Отмена" onAction="#handleCancel" prefWidth="70"/>
+    </HBox>
+</AnchorPane>
