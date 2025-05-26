@@ -28,29 +28,18 @@ public abstract class AbstractDao<T, ID extends Serializable> implements Generic
             action.accept(session);
             transaction.commit();
         } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
-            }
-            System.err.println("Transaction failed for " + clazz.getSimpleName() + ": " + e.getMessage());
-            e.printStackTrace();
+            if (transaction != null && transaction.isActive()) transaction.rollback();
             throw e;
         }
     }
 
     protected <R> R executeWithResult(Function<Session, R> action) {
-        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
-            R result = action.apply(session);
-            // if (transaction != null) transaction.commit();
-            return result;
+            return action.apply(session);
         } catch (RuntimeException e) {
-            // if (transaction != null && transaction.isActive()) transaction.rollback();
-            System.err.println("Read operation failed for " + clazz.getSimpleName() + ": " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
-
 
     @Override
     public void save(T entity) {
@@ -59,21 +48,8 @@ public abstract class AbstractDao<T, ID extends Serializable> implements Generic
 
     @Override
     public void update(T entity) {
-        Transaction transaction = null;
-        T mergedEntity = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            mergedEntity = (T) session.merge(entity);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-        }
-        /*return mergedEntity;*/
+        executeInsideTransaction(session -> session.merge(entity));
     }
-
 
     @Override
     public void delete(T entity) {
@@ -83,20 +59,27 @@ public abstract class AbstractDao<T, ID extends Serializable> implements Generic
     @Override
     public void deleteById(ID id) {
         T entity = findById(id);
-        if (entity != null) {
-            delete(entity);
-        } else {
-            System.out.println(clazz.getSimpleName() + " with ID " + id + " not found for deletion.");
-        }
+        if (entity != null) delete(entity);
     }
 
     @Override
     public T findById(ID id) {
-        return executeWithResult(session -> session.get(clazz, id));
+        return executeWithResult(session -> session.get(clazz, id)); // SQL
     }
 
     @Override
     public List<T> findAll() {
-        return executeWithResult(session -> session.createQuery("FROM " + clazz.getName(), clazz).list());
+        String hql = "FROM " + clazz.getSimpleName(); // HQL
+        return executeWithResult(session -> session.createQuery(hql, clazz).getResultList());
+    }
+
+    public List<T> findByField(String fieldName, Object value) {
+        String hql = "FROM " + clazz.getSimpleName() + " WHERE " + fieldName + " = :value";
+        return executeWithResult(session ->
+                session.createQuery(hql, clazz)
+                        .setParameter("value", value)
+                        .getResultList()
+        );
     }
 }
+
