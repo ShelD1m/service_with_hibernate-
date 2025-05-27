@@ -10,7 +10,7 @@ public class LandlordDialogController implements DialogController<Landlord> {
 
     @FXML private TextField idField;
     @FXML private TextField fullNameField;
-    @FXML private TextField passportField;    // Соответствует passportSerialAndNumber
+    @FXML private TextField passportField;
     @FXML private TextField phoneNumberField;
 
     private Stage dialogStage;
@@ -26,13 +26,13 @@ public class LandlordDialogController implements DialogController<Landlord> {
     @Override
     public void setEntity(Landlord landlord) {
         this.landlord = landlord;
-        if (landlord.getLandlordId() != 0) { // Предполагаю, геттер landlordId()
+        if (landlord.getLandlordId() != 0) {
             idField.setText(String.valueOf(landlord.getLandlordId()));
         } else {
             idField.setText("Авто");
         }
         fullNameField.setText(landlord.getFullName());
-        passportField.setText(landlord.getPassportNumber()); // Предполагаю, геттер passportNumber()
+        passportField.setText(landlord.getPassportNumber());
         phoneNumberField.setText(landlord.getPhoneNumber());
     }
 
@@ -46,7 +46,7 @@ public class LandlordDialogController implements DialogController<Landlord> {
     private void handleOk() {
         if (isInputValid()) {
             landlord.setFullName(fullNameField.getText());
-            landlord.setPassportNumber(passportField.getText()); // Предполагаю, сеттер passportNumber()
+            landlord.setPassportNumber(passportField.getText());
             landlord.setPhoneNumber(phoneNumberField.getText());
             okClicked = true;
             dialogStage.close();

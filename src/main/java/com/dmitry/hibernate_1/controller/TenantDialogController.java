@@ -32,7 +32,7 @@ public class TenantDialogController implements DialogController<Tenant> {
             idField.setText("Авто");
         }
         fullNameField.setText(tenant.getFullName());
-        passportField.setText(tenant.getPassportNumber()); // Предполагаю геттер getPassportNumber()
+        passportField.setText(tenant.getPassportNumber());
         phoneNumberField.setText(tenant.getPhoneNumber());
     }
 
@@ -46,7 +46,7 @@ public class TenantDialogController implements DialogController<Tenant> {
     private void handleOk() {
         if (isInputValid()) {
             tenant.setFullName(fullNameField.getText());
-            tenant.setPassportNumber(passportField.getText()); // Предполагаю сеттер setPassportNumber()
+            tenant.setPassportNumber(passportField.getText());
             tenant.setPhoneNumber(phoneNumberField.getText());
             okClicked = true;
             dialogStage.close();
@@ -64,7 +64,6 @@ public class TenantDialogController implements DialogController<Tenant> {
         if (passportField.getText() == null || passportField.getText().trim().isEmpty()) {
             errorMessage += "Не указан паспорт!\n";
         }
-        // TODO: Добавить другие проверки
 
         if (errorMessage.isEmpty()) {
             return true;

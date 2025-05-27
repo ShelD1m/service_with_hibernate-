@@ -22,16 +22,26 @@ public abstract class AbstractDao<T, ID extends Serializable> implements Generic
     }
 
     protected void executeInsideTransaction(Consumer<Session> action) {
+        Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
+        try {
             transaction = session.beginTransaction();
             action.accept(session);
             transaction.commit();
         } catch (RuntimeException e) {
-            if (transaction != null && transaction.isActive()) transaction.rollback();
+            if (transaction != null && transaction.isActive()) {
+                try {
+                    transaction.rollback();
+                } catch (Exception rollbackEx) {
+                    System.err.println("Ошибка при откате транзакции: " + rollbackEx.getMessage());
+                }
+            }
             throw e;
+        } finally {
+            session.close();
         }
     }
+
 
     protected <R> R executeWithResult(Function<Session, R> action) {
         try (Session session = sessionFactory.openSession()) {
@@ -64,12 +74,12 @@ public abstract class AbstractDao<T, ID extends Serializable> implements Generic
 
     @Override
     public T findById(ID id) {
-        return executeWithResult(session -> session.get(clazz, id)); // SQL
+        return executeWithResult(session -> session.get(clazz, id));
     }
 
     @Override
     public List<T> findAll() {
-        String hql = "FROM " + clazz.getSimpleName(); // HQL
+        String hql = "FROM " + clazz.getSimpleName();
         return executeWithResult(session -> session.createQuery(hql, clazz).getResultList());
     }
 

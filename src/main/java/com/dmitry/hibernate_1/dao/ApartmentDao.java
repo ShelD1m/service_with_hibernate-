@@ -8,4 +8,5 @@ import java.util.List;
 public interface ApartmentDao extends GenericDao<Apartment, Integer> {
     List<Apartment> findByOwner(Landlord owner);
     List<Apartment> findByNumberOfRooms(int roomCount);
+    List<Apartment> findByLandlordId(int landlordId);
 }

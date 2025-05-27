@@ -114,7 +114,7 @@ public class MainWindowController {
         searchIdField.setDisable(!viewSelected);
     }
 
-    // кнопки выбора сущности
+
     @FXML
     void handleOrganizationsButton(ActionEvent event) {
         loadDataForEntityType(CurrentEntityType.ORGANIZATION, organizationDao.findAll());
@@ -205,7 +205,7 @@ public class MainWindowController {
             aptNumCol.setCellValueFactory(new PropertyValueFactory<>("apartmentNumber"));
             mainTableView.getColumns().addAll(idCol, aptIdCol, cityCol, streetCol, houseCol, aptNumCol);
         } else if (entityType == CurrentEntityType.APARTMENT) {
-            TableColumn<Object, Integer> idCol = new TableColumn<>("Кв.ID"); // проверить название столбцов
+            TableColumn<Object, Integer> idCol = new TableColumn<>("Кв.ID");
             idCol.setCellValueFactory(new PropertyValueFactory<>("apartmentId"));
             TableColumn<Object, String> ownerCol = new TableColumn<>("Владелец");
             ownerCol.setCellValueFactory(cellData -> {

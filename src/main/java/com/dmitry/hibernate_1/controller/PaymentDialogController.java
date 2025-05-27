@@ -28,7 +28,6 @@ public class PaymentDialogController implements DialogController<Payment> {
     @FXML private ComboBox<Service> serviceComboBox;
     @FXML private ComboBox<Organization> organizationComboBox;
     @FXML private DatePicker datePicker;
-    // @FXML private TextField actualCostField; // Если используется
 
     private Stage dialogStage;
     private Payment payment;
@@ -43,7 +42,7 @@ public class PaymentDialogController implements DialogController<Payment> {
         idField.setDisable(true);
         loadComboBoxData();
         setupComboBoxConverters();
-        datePicker.setValue(LocalDate.now()); // Значение по умолчанию
+        datePicker.setValue(LocalDate.now());
     }
 
     private void loadComboBoxData() {
@@ -127,7 +126,6 @@ public class PaymentDialogController implements DialogController<Payment> {
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        // ... (код показа сообщения) ...
         alert.showAndWait();
     }
 }

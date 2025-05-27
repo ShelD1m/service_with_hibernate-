@@ -52,7 +52,6 @@ public class ServiceDialogController implements DialogController<Service> {
             try {
                 service.setCost(new BigDecimal(costField.getText().replace(",", ".")));
             } catch (NumberFormatException e) {
-                // Уже проверено в isInputValid
             }
             service.setType(typeField.getText());
             okClicked = true;
@@ -77,7 +76,6 @@ public class ServiceDialogController implements DialogController<Service> {
                 errorMessage += "Стоимость должна быть числом!\n";
             }
         }
-        // TODO: Другие проверки
 
         if (errorMessage.isEmpty()) {
             return true;

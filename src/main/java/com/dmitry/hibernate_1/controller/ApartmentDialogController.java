@@ -14,46 +14,57 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-import java.math.BigDecimal; // Если используете BigDecimal для площади
+import java.math.BigDecimal;
 
 public class ApartmentDialogController implements DialogController<Apartment> {
 
-    @FXML private TextField apartmentIdField;
-    @FXML private ComboBox<Landlord> ownerComboBox;
-    @FXML private TextField numberOfRoomsField;
-    @FXML private TextField squareMetersField;
+    @FXML
+    private TextField apartmentIdField;
+    @FXML
+    private ComboBox<Landlord> ownerComboBox;
+    @FXML
+    private TextField numberOfRoomsField;
+    @FXML
+    private TextField squareMetersField;
 
     // Поля для адреса
-    @FXML private TextField addressCityField;
-    @FXML private TextField addressRegionField;
-    @FXML private TextField addressStreetField;
-    @FXML private TextField addressHouseNumberField;
-    @FXML private TextField addressFloorField;
-    @FXML private TextField addressApartmentNumberField;
+    @FXML
+    private TextField addressCityField;
+    @FXML
+    private TextField addressRegionField;
+    @FXML
+    private TextField addressStreetField;
+    @FXML
+    private TextField addressHouseNumberField;
+    @FXML
+    private TextField addressFloorField;
+    @FXML
+    private TextField addressApartmentNumberField;
 
 
     private Stage dialogStage;
     private Apartment apartment;
-    private Address address; // Адрес, связанный с квартирой
+    private Address address;
     private boolean okClicked = false;
 
-    private final LandlordDao landlordDao = new LandlordDaoImpl(); // DAO для загрузки владельцев
+    private final LandlordDao landlordDao = new LandlordDaoImpl();
 
     @FXML
     private void initialize() {
         apartmentIdField.setDisable(true);
         loadLandlords();
 
-        // Для отображения ФИО владельца в ComboBox
         ownerComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Landlord landlord) {
                 return landlord == null ? null : landlord.getFullName() + " (ID: " + landlord.getLandlordId() + ")";
             }
-            @Override
-            public Landlord fromString(String string) { return null;
 
- }
+            @Override
+            public Landlord fromString(String string) {
+                return null;
+
+            }
         });
     }
 
@@ -63,14 +74,16 @@ public class ApartmentDialogController implements DialogController<Apartment> {
     }
 
     @Override
-    public void setDialogStage(Stage dialogStage) { this.dialogStage = dialogStage; }
+    public void setDialogStage(Stage dialogStage) {
+        this.dialogStage = dialogStage;
+    }
 
     @Override
     public void setEntity(Apartment apartment) {
         this.apartment = apartment;
-        if (apartment.getAddress() == null) { // Если это новая квартира, создаем новый адрес
+        if (apartment.getAddress() == null) {
             this.address = new Address();
-            this.apartment.setAddress(this.address); // Сразу связываем
+            this.apartment.setAddress(this.address);
         } else {
             this.address = apartment.getAddress();
         }
@@ -81,7 +94,7 @@ public class ApartmentDialogController implements DialogController<Apartment> {
             apartmentIdField.setText("Авто");
         }
 
-        ownerComboBox.setValue(apartment.getLandlordId()); // Предполагается поле landlordId (или owner) в Apartment
+        ownerComboBox.setValue(apartment.getLandlordId());
         numberOfRoomsField.setText(apartment.getRoomCount() != null ? String.valueOf(apartment.getRoomCount()) : "");
         squareMetersField.setText(apartment.getSquareMeters() != null ? apartment.getSquareMeters().toString() : "");
 
@@ -95,49 +108,52 @@ public class ApartmentDialogController implements DialogController<Apartment> {
     }
 
     @Override
-    public boolean isOkClicked() { return okClicked; }
+    public boolean isOkClicked() {
+        return okClicked;
+    }
 
     @Override
-    public Apartment getEntity() { return apartment; }
+    public Apartment getEntity() {
+        return apartment;
+    }
 
     @FXML
     private void handleOk() {
         if (isInputValid()) {
-            apartment.setLandlordId(ownerComboBox.getValue()); // Предполагается поле landlordId (или owner) в Apartment
+            apartment.setLandlordId(ownerComboBox.getValue());
             try {
                 apartment.setRoomCount(numberOfRoomsField.getText().isEmpty() ? null : Integer.parseInt(numberOfRoomsField.getText()));
-                apartment.setSquareMeters(squareMetersField.getText().isEmpty() ? null : new BigDecimal(squareMetersField.getText().replace(",", ".")).doubleValue()); // Замените Double если надо
+                apartment.setSquareMeters(squareMetersField.getText().isEmpty() ? null : new BigDecimal(squareMetersField.getText().replace(",", ".")).doubleValue());
             } catch (NumberFormatException e) {
                 showAlert(Alert.AlertType.ERROR, "Ошибка", "Кол-во комнат и площадь должны быть числами.");
                 return;
             }
 
-            // Обновление данных адреса
-            // Address addressToSave = apartment.getAddress(); // уже установлен в setEntity
-            // if (addressToSave == null) { // На всякий случай, хотя не должно быть null
-            //    addressToSave = new Address();
-            //    apartment.setAddress(addressToSave);
-            // }
             address.setCityName(addressCityField.getText());
             address.setRegion(addressRegionField.getText());
             address.setStreetName(addressStreetField.getText());
             address.setHouseNumber(addressHouseNumberField.getText());
             try {
                 address.setFloor(addressFloorField.getText().isEmpty() ? null : Integer.parseInt(addressFloorField.getText()));
-            } catch (NumberFormatException ex){
+            } catch (NumberFormatException ex) {
                 address.setFloor(null);
             }
             address.setApartmentNumber(addressApartmentNumberField.getText());
-            // Связь Apartment -> Address уже установлена.
-            // Hibernate сохранит Address каскадно благодаря CascadeType.ALL и @MapsId в Address.
+
+            // 👇 ВАЖНО: Установка связи
+            address.setApartment(apartment);
+            apartment.setAddress(address);
 
             okClicked = true;
             dialogStage.close();
         }
     }
 
+
     @FXML
-    private void handleCancel() { dialogStage.close(); }
+    private void handleCancel() {
+        dialogStage.close();
+    }
 
     private boolean isInputValid() {
         String errorMessage = "";
@@ -147,8 +163,7 @@ public class ApartmentDialogController implements DialogController<Apartment> {
         if (addressCityField.getText() == null || addressCityField.getText().trim().isEmpty()) {
             errorMessage += "Не указан город для адреса!\n";
         }
-        // TODO: Другие проверки для полей квартиры и адреса
-        // ...
+
 
         if (errorMessage.isEmpty()) {
             return true;

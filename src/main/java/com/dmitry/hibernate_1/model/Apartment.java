@@ -96,6 +96,7 @@ public class Apartment {
         this.landlordId = owner;
     }
 
+
     public void addContractSigning(ContractSigning contractSigning) {
         contractSignings.add(contractSigning);
         contractSigning.setApartment(this);

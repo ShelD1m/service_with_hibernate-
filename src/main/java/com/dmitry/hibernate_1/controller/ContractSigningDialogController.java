@@ -1,7 +1,7 @@
 package com.dmitry.hibernate_1.controller;
 
-import com.dmitry.hibernate_1.dao.*; // Импорт всех DAO
-import com.dmitry.hibernate_1.model.*; // Импорт всех моделей
+import com.dmitry.hibernate_1.dao.*;
+import com.dmitry.hibernate_1.model.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 public class ContractSigningDialogController implements DialogController<ContractSigning> {
 
-    @FXML private TextField contractNumberField; // Если PK не авто, это поле должно быть редактируемым для новых
+    @FXML private TextField contractNumberField;
     @FXML private ComboBox<Landlord> landlordComboBox;
     @FXML private ComboBox<Tenant> tenantComboBox;
     @FXML private ComboBox<Apartment> apartmentComboBox;
@@ -26,7 +26,6 @@ public class ContractSigningDialogController implements DialogController<Contrac
     private ContractSigning contractSigning;
     private boolean okClicked = false;
 
-    // Инициализация DAO
     private final LandlordDao landlordDao = new LandlordDaoImpl();
     private final TenantDao tenantDao = new TenantDaoImpl();
     private final ApartmentDao apartmentDao = new ApartmentDaoImpl();
@@ -37,7 +36,7 @@ public class ContractSigningDialogController implements DialogController<Contrac
     private void initialize() {
         loadComboBoxData();
         setupComboBoxConverters();
-        signingDatePicker.setValue(LocalDate.now()); // По умолчанию
+        signingDatePicker.setValue(LocalDate.now());
     }
 
     private void loadComboBoxData() {
@@ -71,16 +70,14 @@ public class ContractSigningDialogController implements DialogController<Contrac
     @Override
     public void setEntity(ContractSigning contractSigning) {
         this.contractSigning = contractSigning;
-        // Если PK (contractNumber) генерируется БД и имеет тип int/long, то здесь будет проверка на 0
-        // Если PK - это строка, которую вы вводите:
         if ((contractSigning.getContractNumber()+"") != null && !(contractSigning.getContractNumber()+"").isEmpty()) {
             isEditMode = true;
             contractNumberField.setText(contractSigning.getContractNumber()+"");
-            contractNumberField.setDisable(true); // Номер договора не редактируется
+            contractNumberField.setDisable(true);
         } else {
             isEditMode = false;
-            contractNumberField.setDisable(false); // Для новой записи номер можно ввести
-            contractNumberField.setText(""); // или генерировать по шаблону
+            contractNumberField.setDisable(false);
+            contractNumberField.setText("");
         }
 
         landlordComboBox.setValue(contractSigning.getLandlord());
@@ -99,12 +96,9 @@ public class ContractSigningDialogController implements DialogController<Contrac
     @FXML
     private void handleOk() {
         if (isInputValid()) {
-            // Если номер договора не генерируется автоматически, то его нужно установить.
-            // Если это новая запись и поле contractNumberField было редактируемым:
             if (!isEditMode) {
                 contractSigning.setContractNumber(Integer.parseInt(contractNumberField.getText()));
             }
-            // В режиме редактирования номер не меняется (он PK).
 
             contractSigning.setLandlord(landlordComboBox.getValue());
             contractSigning.setTenant(tenantComboBox.getValue());
@@ -123,10 +117,6 @@ public class ContractSigningDialogController implements DialogController<Contrac
     private boolean isInputValid() {
         String errorMessage = "";
         if (!isEditMode && (contractNumberField.getText() == null || contractNumberField.getText().trim().isEmpty())) {
-            // Это условие зависит от того, как вы генерируете/устанавливаете PK для договора.
-            // Если он автогенерируемый числовой, то эта проверка не нужна, поле contractNumberField будет disable.
-            // Если строковый, вводимый вручную - то проверка нужна.
-            // Я оставлю для случая ручного ввода строки:
             errorMessage += "Не указан номер договора!\n";
         }
         if (landlordComboBox.getValue() == null) errorMessage += "Не выбран арендодатель!\n";
@@ -136,7 +126,6 @@ public class ContractSigningDialogController implements DialogController<Contrac
         if (termField.getText() == null || termField.getText().trim().isEmpty()) {
             errorMessage += "Не указан срок договора!\n";
         }
-        // TODO: Другие проверки (например, на уникальность номера договора, если он вводится вручную и не авто-PK)
 
         if (errorMessage.isEmpty()) {
             return true;
@@ -148,7 +137,6 @@ public class ContractSigningDialogController implements DialogController<Contrac
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        // ... (код показа сообщения) ...
         alert.showAndWait();
     }
 }
