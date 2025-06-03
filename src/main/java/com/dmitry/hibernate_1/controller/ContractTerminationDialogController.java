@@ -105,24 +105,44 @@ public class ContractTerminationDialogController implements DialogController<Con
     private void handleCancel() { dialogStage.close(); }
 
     private boolean isInputValid() {
-        String errorMessage = "";
+        StringBuilder errorMessage = new StringBuilder();
         if (terminationDatePicker.getValue() == null) {
-            errorMessage += "Не указана дата расторжения!\n";
+            errorMessage.append("Не указана дата расторжения!\n");
+        } else {
+            LocalDate terminationDate = terminationDatePicker.getValue();
+            if (terminationDate.isAfter(LocalDate.now())) {
+                errorMessage.append("Дата расторжения не может быть в будущем!\n");
+            }
+            if (relatedContract != null && relatedContract.getSigningDate() != null &&
+                    terminationDate.isBefore(relatedContract.getSigningDate())) {
+                errorMessage.append("Дата расторжения не может быть раньше даты подписания контракта!\n");
+            }
+        }
+        if (reasonTextArea.getText() == null || reasonTextArea.getText().trim().isEmpty()) {
+            errorMessage.append("Не указана причина расторжения!\n");
+        } else if (reasonTextArea.getText().length() > 1000) {
+            errorMessage.append("Причина расторжения слишком длинная (максимум 1000 символов)!\n");
         }
         if (relatedContract == null && !isEditMode) {
-            errorMessage += "Не указан договор для расторжения! (Внутренняя ошибка)\n";
+            errorMessage.append("Не указан договор для расторжения! (Внутренняя ошибка)\n");
         }
 
         if (errorMessage.isEmpty()) {
             return true;
         } else {
-            showAlert("Некорректные данные", errorMessage);
+            showAlert("Ошибка ввода данных",
+                    "Пожалуйста, исправьте следующие ошибки:",
+                    errorMessage.toString());
             return false;
         }
     }
 
-    private void showAlert(String title, String message) {
+    private void showAlert(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.initOwner(dialogStage);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 }

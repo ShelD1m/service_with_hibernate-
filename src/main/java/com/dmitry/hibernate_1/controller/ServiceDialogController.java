@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.regex.Pattern;
 
 public class ServiceDialogController implements DialogController<Service> {
 
@@ -20,11 +21,19 @@ public class ServiceDialogController implements DialogController<Service> {
     private Service service;
     private boolean okClicked = false;
 
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[\\p{L}0-9 .'-]+$");
+    private static final Pattern COST_PATTERN = Pattern.compile("^\\d+(\\.\\d{1,2})?$");
+    private static final Pattern TYPE_PATTERN = Pattern.compile("^[\\p{L}0-9 -]+$");
+
     @FXML
-    private void initialize() { idField.setDisable(true); }
+    private void initialize() {
+        idField.setDisable(true);
+    }
 
     @Override
-    public void setDialogStage(Stage dialogStage) { this.dialogStage = dialogStage; }
+    public void setDialogStage(Stage dialogStage) {
+        this.dialogStage = dialogStage;
+    }
 
     @Override
     public void setEntity(Service service) {
@@ -35,62 +44,99 @@ public class ServiceDialogController implements DialogController<Service> {
             idField.setText("Авто");
         }
         nameField.setText(service.getName());
-        costField.setText(service.getCost() != null ? service.getCost().setScale(2, RoundingMode.HALF_UP).toPlainString() : "");
+        costField.setText(service.getCost() != null ?
+                service.getCost().setScale(2, RoundingMode.HALF_UP).toPlainString() : "");
         typeField.setText(service.getType());
     }
 
     @Override
-    public boolean isOkClicked() { return okClicked; }
+    public boolean isOkClicked() {
+        return okClicked;
+    }
 
     @Override
-    public Service getEntity() { return service; }
+    public Service getEntity() {
+        return service;
+    }
 
     @FXML
     private void handleOk() {
         if (isInputValid()) {
-            service.setName(nameField.getText());
-            try {
-                service.setCost(new BigDecimal(costField.getText().replace(",", ".")));
-            } catch (NumberFormatException e) {
-            }
-            service.setType(typeField.getText());
+            updateServiceData();
             okClicked = true;
             dialogStage.close();
         }
     }
 
+    private void updateServiceData() {
+        service.setName(nameField.getText().trim());
+
+        try {
+            String costText = costField.getText().replace(",", ".");
+            service.setCost(new BigDecimal(costText).setScale(2, RoundingMode.HALF_UP));
+        } catch (NumberFormatException e) {
+            service.setCost(BigDecimal.ZERO);
+        }
+
+        service.setType(typeField.getText().trim());
+    }
+
     @FXML
-    private void handleCancel() { dialogStage.close(); }
+    private void handleCancel() {
+        dialogStage.close();
+    }
 
     private boolean isInputValid() {
-        String errorMessage = "";
-        if (nameField.getText() == null || nameField.getText().trim().isEmpty()) {
-            errorMessage += "Не указано название услуги!\n";
+        StringBuilder errorMessage = new StringBuilder();
+        String name = nameField.getText();
+        if (name == null || name.trim().isEmpty()) {
+            errorMessage.append("Не указано название услуги!\n");
+        } else if (name.length() > 100) {
+            errorMessage.append("Название услуги слишком длинное (максимум 100 символов)!\n");
+        } else if (!NAME_PATTERN.matcher(name).matches()) {
+            errorMessage.append("Название услуги содержит недопустимые символы!\n");
         }
-        if (costField.getText() == null || costField.getText().trim().isEmpty()) {
-            errorMessage += "Не указана стоимость!\n";
+        String cost = costField.getText();
+        if (cost == null || cost.trim().isEmpty()) {
+            errorMessage.append("Не указана стоимость услуги!\n");
         } else {
             try {
-                new BigDecimal(costField.getText().replace(",", "."));
+                BigDecimal costValue = new BigDecimal(cost.replace(",", "."));
+                if (costValue.compareTo(BigDecimal.ZERO) <= 0) {
+                    errorMessage.append("Стоимость должна быть положительной!\n");
+                } else if (costValue.compareTo(new BigDecimal("1000000")) > 0) {
+                    errorMessage.append("Стоимость слишком высокая (максимум 1 000 000)!\n");
+                } else if (!COST_PATTERN.matcher(cost).matches()) {
+                    errorMessage.append("Стоимость должна быть числом с максимум 2 знаками после запятой!\n");
+                }
             } catch (NumberFormatException e) {
-                errorMessage += "Стоимость должна быть числом!\n";
+                errorMessage.append("Некорректный формат стоимости!\n");
             }
         }
-
+        String type = typeField.getText();
+        if (type != null && !type.trim().isEmpty()) {
+            if (type.length() > 50) {
+                errorMessage.append("Тип услуги слишком длинный (максимум 50 символов)!\n");
+            } else if (!TYPE_PATTERN.matcher(type).matches()) {
+                errorMessage.append("Тип услуги содержит недопустимые символы!\n");
+            }
+        }
         if (errorMessage.isEmpty()) {
             return true;
         } else {
-            showAlert("Некорректные данные", errorMessage);
+            showAlert("Ошибка ввода данных",
+                    "Пожалуйста, исправьте следующие ошибки:",
+                    errorMessage.toString());
             return false;
         }
     }
 
-    private void showAlert(String title, String message) {
+    private void showAlert(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.initOwner(dialogStage);
         alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 }
