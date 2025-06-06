@@ -44,7 +44,6 @@ public class Apartment {
 
     public Apartment() {}
 
-    // Геттеры и сеттеры
     public int getApartmentId() {
         return apartmentId;
     }

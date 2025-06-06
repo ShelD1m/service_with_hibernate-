@@ -8,13 +8,10 @@
         <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
         <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
         <TextField fx:id="idField" GridPane.rowIndex="0" GridPane.columnIndex="1" editable="false" focusTraversable="false"/>
-
         <Label text="ФИО:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <TextField fx:id="fullNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
         <Label text="Паспорт (серия номер):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
         <TextField fx:id="passportField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
         <Label text="Номер телефона:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
         <TextField fx:id="phoneNumberField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
     </GridPane>

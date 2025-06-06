@@ -2,27 +2,24 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-
-<AnchorPane prefWidth="550.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dmitry.hibernate_1.controller.ContractSigningDialogController">
-    <GridPane hgap="10" vgap="10" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
-        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-
+<AnchorPane prefWidth="550.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.dmitry.hibernate_1.controller.ContractSigningDialogController">
+    <GridPane hgap="10" vgap="10" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0"
+              AnchorPane.rightAnchor="20.0">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
         <Label text="Номер договора (ID):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
         <TextField fx:id="contractNumberField" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="350"
-                   promptText="Например, ДОГ-2024-01 (если не авто)"/> <!-- editable в зависимости от генерации PK -->
-
+                   promptText="Например, ДОГ-2024-01 (если не авто)"/>
         <Label text="Арендодатель:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <ComboBox fx:id="landlordComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="350"/>
-
         <Label text="Квартиросъемщик (Арендатор):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
         <ComboBox fx:id="tenantComboBox" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="350"/>
-
         <Label text="Квартира:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
         <ComboBox fx:id="apartmentComboBox" GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="350"/>
-
         <Label text="Дата подписания:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
         <DatePicker fx:id="signingDatePicker" GridPane.rowIndex="4" GridPane.columnIndex="1" prefWidth="350"/>
-
         <Label text="Срок договора:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
         <TextField fx:id="termField" GridPane.rowIndex="5" GridPane.columnIndex="1" prefWidth="350"
                    promptText="Например, 11 месяцев / 1 год"/>

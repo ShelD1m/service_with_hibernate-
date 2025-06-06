@@ -2,28 +2,24 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-
-<AnchorPane prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dmitry.hibernate_1.controller.PaymentDialogController">
-    <GridPane hgap="10" vgap="10" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
-        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+<AnchorPane prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.dmitry.hibernate_1.controller.PaymentDialogController">
+    <GridPane hgap="10" vgap="10" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0"
+              AnchorPane.rightAnchor="20.0">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
         <Label text="ID Платежа:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="idField" GridPane.rowIndex="0" GridPane.columnIndex="1" editable="false" focusTraversable="false"/>
-
+        <TextField fx:id="idField" GridPane.rowIndex="0" GridPane.columnIndex="1" editable="false"
+                   focusTraversable="false"/>
         <Label text="Плательщик (Арендатор):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <ComboBox fx:id="tenantComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" prefWidth="300"/>
-
         <Label text="Услуга:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
         <ComboBox fx:id="serviceComboBox" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="300"/>
-
         <Label text="Организация (Получатель):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
         <ComboBox fx:id="organizationComboBox" GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="300"/>
-
         <Label text="Дата платежа:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
         <DatePicker fx:id="datePicker" GridPane.rowIndex="4" GridPane.columnIndex="1" prefWidth="300"/>
-
-        <!-- Если нужна фиксация стоимости на момент платежа -->
-        <!-- <Label text="Фактическая стоимость:" GridPane.rowIndex="5" GridPane.columnIndex="0"/> -->
-        <!-- <TextField fx:id="actualCostField" GridPane.rowIndex="5" GridPane.columnIndex="1"/> -->
     </GridPane>
     <HBox spacing="10" alignment="BOTTOM_RIGHT" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="20.0">
         <Button text="OK" onAction="#handleOk" prefWidth="70"/>
