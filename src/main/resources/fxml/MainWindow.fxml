@@ -39,6 +39,7 @@
                 <Button fx:id="addButton" text="Добавить" onAction="#handleAddButton"/>
                 <Button fx:id="editButton" text="Изменить" onAction="#handleEditButton"/>
                 <Button fx:id="deleteButton" text="Удалить" onAction="#handleDeleteButton"/>
+                <Button fx:id="queryButton" text="Доп. запросы" onAction="#handleQueryButton"/>
             </HBox>
         </VBox>
     </center>

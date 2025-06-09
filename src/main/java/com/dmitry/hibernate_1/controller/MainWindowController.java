@@ -3,6 +3,7 @@ package com.dmitry.hibernate_1.controller;
 import com.dmitry.hibernate_1.MainApp;
 import com.dmitry.hibernate_1.dao.*;
 import com.dmitry.hibernate_1.model.*;
+import com.dmitry.hibernate_1.util.HibernateUtil;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,6 +18,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.hibernate.Session;
+import java.util.Date;
 
 
 import java.io.IOException;
@@ -112,7 +115,175 @@ public class MainWindowController {
         deleteButton.setDisable(!itemSelected || !viewSelected);
         searchButton.setDisable(!viewSelected);
         searchIdField.setDisable(!viewSelected);
+        queryButton.setDisable(false);
     }
+    @FXML
+    private void handleQueryButton() {
+        if (currentView == CurrentEntityType.APARTMENT) {
+            executeQuery1();
+        } else if (currentView == CurrentEntityType.LANDLORD) {
+            executeQuery2();
+        } else if (currentView == CurrentEntityType.TENANT) {
+            executeQuery3();
+        } else if (currentView == CurrentEntityType.ORGANIZATION) {
+            executeQuery4();
+        } else if (currentView == CurrentEntityType.PAYMENT) {
+            executeQuery5();
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "Нет запроса", "Для выбранной сущности не задан специальный SQL-запрос.");
+        }
+    }
+    private void executeQuery1() {
+        String sql = "SELECT apartment_id, room_count, square_meters FROM rental.apartment WHERE room_count > 2 ORDER BY room_count DESC, square_meters DESC";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+            TableColumn<Object, Integer> idCol = new TableColumn<>("Кв. ID");
+            idCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleObjectProperty<>((Integer) row[0]);
+            });
+            TableColumn<Object, Integer> roomCol = new TableColumn<>("Комнат");
+            roomCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleObjectProperty<>((Integer) row[1]);
+            });
+            TableColumn<Object, BigDecimal> areaCol = new TableColumn<>("Площадь");
+            areaCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleObjectProperty<>((BigDecimal) row[2]);
+            });
+            mainTableView.getColumns().addAll(idCol, roomCol, areaCol);
+            tableData.addAll(results);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Ошибка", "Не удалось выполнить запрос: " + e.getMessage());
+        }
+    }
+
+
+    private void executeQuery2() {
+        String sql = "SELECT l.full_name, a.apartment_id FROM rental.landlord l JOIN rental.apartment a ON l.landlord_id = a.landlord_id ORDER BY l.full_name";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> nameCol = new TableColumn<>("ФИО");
+            nameCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleStringProperty((String) row[0]);
+            });
+
+            TableColumn<Object, Integer> idCol = new TableColumn<>("Кв. ID");
+            idCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleObjectProperty<>((Integer) row[1]);
+            });
+
+            mainTableView.getColumns().addAll(nameCol, idCol);
+            tableData.addAll(results);
+        }
+    }
+
+
+    private void executeQuery3() {
+        String sql = "SELECT t.full_name FROM rental.tenant t WHERE t.tenant_id IN (SELECT s.tenant_id FROM rental.sign_contract s JOIN rental.apartment a ON s.apartment_id = a.apartment_id) ORDER BY t.full_name";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<String> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> nameCol = new TableColumn<>("ФИО жильца");
+            nameCol.setCellValueFactory(cell -> new SimpleStringProperty((String) cell.getValue()));
+
+            mainTableView.getColumns().add(nameCol);
+            tableData.addAll(results);
+        }
+    }
+
+
+    private void executeQuery4() {
+        String sql = """
+        SELECT o.organization_name, s.service_name, COUNT(p.payment_id) as payment_count
+        FROM rental.payment p
+        JOIN rental.service s ON p.service_code = s.service_code
+        JOIN rental.organization o ON p.organization_id = o.organization_id
+        GROUP BY o.organization_name, s.service_name
+        HAVING COUNT(p.payment_id) > 0
+        ORDER BY payment_count DESC
+        """;
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> orgCol = new TableColumn<>("Организация");
+            orgCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleStringProperty((String) row[0]);
+            });
+
+            TableColumn<Object, String> serviceCol = new TableColumn<>("Услуга");
+            serviceCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleStringProperty((String) row[1]);
+            });
+
+            TableColumn<Object, Long> countCol = new TableColumn<>("Кол-во оплат");
+            countCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleObjectProperty<>(((Number) row[2]).longValue());
+            });
+
+            mainTableView.getColumns().addAll(orgCol, serviceCol, countCol);
+            tableData.addAll(results);
+        }
+    }
+
+
+
+    private void executeQuery5() {
+        String sql = """
+        SELECT s.service_name, p.payment_date
+        FROM rental.payment p
+        JOIN rental.service s ON p.service_code = s.service_code
+        WHERE p.payment_date >= '2023-05-17'
+        ORDER BY p.payment_date DESC
+        """;
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> serviceCol = new TableColumn<>("Услуга");
+            serviceCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleStringProperty((String) row[0]);
+            });
+
+            TableColumn<Object, Date> dateCol = new TableColumn<>("Дата оплаты");
+            dateCol.setCellValueFactory(cell -> {
+                Object[] row = (Object[]) cell.getValue();
+                return new SimpleObjectProperty<>((Date) row[1]);
+            });
+
+            mainTableView.getColumns().addAll(serviceCol, dateCol);
+            tableData.addAll(results);
+        }
+    }
+
 
 
     @FXML
@@ -518,6 +689,9 @@ public class MainWindowController {
     }
 
     @FXML
+    private Button queryButton;
+
+    @FXML
     private Button terminateContractButton;
 
 
@@ -558,7 +732,7 @@ public class MainWindowController {
                 try {
                     contractTerminationDao.save(returnedTermination);
                     showAlert(Alert.AlertType.INFORMATION, "Успех", "Договор расторгнут.");
-                    reloadCurrentViewData(); // или только обновить текущую строку
+                    reloadCurrentViewData();
                 } catch (Exception e) {
                     e.printStackTrace();
                     showAlert(Alert.AlertType.ERROR, "Ошибка сохранения", "Не удалось сохранить расторжение: " + e.getMessage());
