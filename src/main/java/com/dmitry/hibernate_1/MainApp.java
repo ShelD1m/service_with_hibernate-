@@ -7,7 +7,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import com.dmitry.hibernate_1.util.HibernateUtil; // Импортируем
 
 import java.io.IOException;
 import java.net.URL;

@@ -19,7 +19,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.hibernate.Session;
-import java.util.Date;
+
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 
 import java.io.IOException;
@@ -27,9 +29,6 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public class MainWindowController {
 
@@ -47,6 +46,10 @@ public class MainWindowController {
     private TextField searchIdField;
     @FXML
     private Button searchButton;
+    @FXML
+    private Button queryButton;
+    @FXML
+    private Button terminateContractButton;
 
     private final OrganizationDao organizationDao = new OrganizationDaoImpl();
     private final AddressDao addressDao = new AddressDaoImpl();
@@ -91,6 +94,134 @@ public class MainWindowController {
             return entityClass;
         }
     }
+    @FXML
+    private void handleQueryButton() {
+        switch (currentView) {
+            case APARTMENT -> openApartmentQueryDialog();
+            case PAYMENT -> openPaymentQueryDialog();
+            case LANDLORD -> openLandlordQueryDialog();
+            case TENANT -> openTenantQueryDialog();
+            case ORGANIZATION -> openOrganizationQueryDialog();
+            default -> showAlert(Alert.AlertType.INFORMATION, "Нет запроса", "Для этой сущности нет расширенного запроса.");
+        }
+    }
+    private void openApartmentQueryDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ApartmentQueryDialog.fxml"));
+            Parent page = loader.load();
+            ApartmentQueryDialogController controller = loader.getController();
+
+            Stage dialogStage = createDialogStage("Фильтр квартир", page);
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) {
+                Map<String, String> params = controller.getParameters();
+                int minRooms = Integer.parseInt(params.get("roomCountField"));
+                executeQuery1WithParam(minRooms);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void openPaymentQueryDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/PaymentQueryDialog.fxml"));
+            Parent page = loader.load();
+            PaymentQueryDialogController controller = loader.getController();
+
+            Stage dialogStage = createDialogStage("Фильтр платежей", page);
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) {
+                Map<String, String> params = controller.getParameters();
+                String rawDate = params.get("fromDateField");
+
+                if (rawDate != null && !rawDate.isBlank()) {
+                    LocalDate fromDate = LocalDate.parse(rawDate);
+                    executeQuery5WithDate(fromDate);
+                } else {
+                    showAlert(Alert.AlertType.WARNING, "Ошибка", "Введите дату в формате YYYY-MM-DD.");
+                }
+            }
+
+        } catch (IOException | DateTimeParseException e) {
+            e.printStackTrace();
+        }
+    }
+    private void openLandlordQueryDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LandlordQueryDialog.fxml"));
+            Parent page = loader.load();
+            LandlordQueryDialogController controller = loader.getController();
+
+            Stage dialogStage = createDialogStage("Фильтр арендодателей", page);
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) {
+                Map<String, String> params = controller.getParameters();
+                String name = params.get("landlordNameField");
+                executeQuery2();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void openTenantQueryDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/TenantQueryDialog.fxml"));
+            Parent page = loader.load();
+            TenantQueryDialogController controller = loader.getController();
+
+            Stage dialogStage = createDialogStage("Фильтр жильцов", page);
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) {
+                Map<String, String> params = controller.getParameters();
+                String name = params.get("tenantNameField");
+                if (controller.isOkClicked()) {
+                    executeQuery3();
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openOrganizationQueryDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OrganizationQueryDialog.fxml"));
+            Parent page = loader.load();
+            OrganizationQueryDialogController controller = loader.getController();
+
+            Stage dialogStage = createDialogStage("Фильтр организаций", page);
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            if (controller.isOkClicked()) {
+                Map<String, String> params = controller.getParameters();
+                String orgName = params.get("orgNameField");
+                executeQuery4();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private Stage createDialogStage(String title, Parent content) {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle(title);
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.setScene(new Scene(content));
+        return dialogStage;
+    }
+
+
 
     private CurrentEntityType currentView = CurrentEntityType.NONE;
     private final ObservableList<Object> tableData = FXCollections.observableArrayList();
@@ -107,6 +238,7 @@ public class MainWindowController {
         });
     }
 
+
     private void updateButtonStates() {
         boolean itemSelected = mainTableView.getSelectionModel().getSelectedItem() != null;
         boolean viewSelected = currentView != CurrentEntityType.NONE;
@@ -117,23 +249,113 @@ public class MainWindowController {
         searchIdField.setDisable(!viewSelected);
         queryButton.setDisable(false);
     }
-    @FXML
-    private void handleQueryButton() {
-        if (currentView == CurrentEntityType.APARTMENT) {
-            executeQuery1();
-        } else if (currentView == CurrentEntityType.LANDLORD) {
-            executeQuery2();
-        } else if (currentView == CurrentEntityType.TENANT) {
-            executeQuery3();
-        } else if (currentView == CurrentEntityType.ORGANIZATION) {
-            executeQuery4();
-        } else if (currentView == CurrentEntityType.PAYMENT) {
-            executeQuery5();
-        } else {
-            showAlert(Alert.AlertType.INFORMATION, "Нет запроса", "Для выбранной сущности не задан специальный SQL-запрос.");
+    // Пример: executeQuery1WithParam для Apartment (по количеству комнат)
+    private void executeQuery1WithParam(int minRooms) {
+        String sql = "SELECT apartment_id, room_count, square_meters FROM rental.apartment WHERE room_count > :minRooms ORDER BY room_count DESC, square_meters DESC";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql).setParameter("minRooms", minRooms).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, Integer> idCol = new TableColumn<>("ID");
+            idCol.setCellValueFactory(cell -> new SimpleObjectProperty<>((Integer)((Object[])cell.getValue())[0]));
+            TableColumn<Object, Integer> roomsCol = new TableColumn<>("Комнат");
+            roomsCol.setCellValueFactory(cell -> new SimpleObjectProperty<>((Integer)((Object[])cell.getValue())[1]));
+            TableColumn<Object, BigDecimal> areaCol = new TableColumn<>("Площадь");
+            areaCol.setCellValueFactory(cell -> new SimpleObjectProperty<>((BigDecimal)((Object[])cell.getValue())[2]));
+
+            mainTableView.getColumns().addAll(idCol, roomsCol, areaCol);
+            tableData.addAll(results);
         }
     }
-    private void executeQuery1() {
+
+    // Пример: executeQuery2 (Landlord & Apartment связи)
+    private void executeQuery2() {
+        String sql = "SELECT l.full_name, a.apartment_id FROM rental.landlord l JOIN rental.apartment a ON l.landlord_id = a.landlord_id ORDER BY l.full_name";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> nameCol = new TableColumn<>("ФИО");
+            nameCol.setCellValueFactory(cell -> new SimpleStringProperty((String)((Object[])cell.getValue())[0]));
+            TableColumn<Object, Integer> idCol = new TableColumn<>("ID Квартиры");
+            idCol.setCellValueFactory(cell -> new SimpleObjectProperty<>((Integer)((Object[])cell.getValue())[1]));
+
+            mainTableView.getColumns().addAll(nameCol, idCol);
+            tableData.addAll(results);
+        }
+    }
+
+    private void executeQuery3() {
+        String sql = "SELECT t.full_name FROM rental.tenant t WHERE t.tenant_id IN (SELECT s.tenant_id FROM rental.sign_contract s JOIN rental.apartment a ON s.apartment_id = a.apartment_id) ORDER BY t.full_name";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<String> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> nameCol = new TableColumn<>("ФИО жильца");
+            nameCol.setCellValueFactory(cell -> new SimpleStringProperty((String) cell.getValue()));
+
+            mainTableView.getColumns().add(nameCol);
+            tableData.addAll(results);
+        }
+    }
+
+    private void executeQuery4() {
+        String sql = "SELECT o.organization_name, s.service_name, COUNT(p.payment_id) as payment_count " +
+                "FROM rental.payment p JOIN rental.service s ON p.service_code = s.service_code " +
+                "JOIN rental.organization o ON p.organization_id = o.organization_id " +
+                "GROUP BY o.organization_name, s.service_name " +
+                "HAVING COUNT(p.payment_id) > 0 ORDER BY payment_count DESC";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql).list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> orgCol = new TableColumn<>("Организация");
+            orgCol.setCellValueFactory(cell -> new SimpleStringProperty((String)((Object[])cell.getValue())[0]));
+            TableColumn<Object, String> serviceCol = new TableColumn<>("Услуга");
+            serviceCol.setCellValueFactory(cell -> new SimpleStringProperty((String)((Object[])cell.getValue())[1]));
+            TableColumn<Object, Long> countCol = new TableColumn<>("Кол-во оплат");
+            countCol.setCellValueFactory(cell -> new SimpleObjectProperty<>(((Number)((Object[])cell.getValue())[2]).longValue()));
+
+            mainTableView.getColumns().addAll(orgCol, serviceCol, countCol);
+            tableData.addAll(results);
+        }
+    }
+
+    private void executeQuery5WithDate(LocalDate fromDate) {
+        String sql = "SELECT s.service_name, p.payment_date FROM rental.payment p JOIN rental.service s ON p.service_code = s.service_code WHERE p.payment_date >= :fromDate ORDER BY p.payment_date DESC";
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Object[]> results = session.createNativeQuery(sql)
+                    .setParameter("fromDate", fromDate)
+                    .list();
+
+            tableData.clear();
+            mainTableView.getColumns().clear();
+
+            TableColumn<Object, String> serviceCol = new TableColumn<>("Услуга");
+            serviceCol.setCellValueFactory(cell -> new SimpleStringProperty((String)((Object[])cell.getValue())[0]));
+            TableColumn<Object, Date> dateCol = new TableColumn<>("Дата оплаты");
+            dateCol.setCellValueFactory(cell -> new SimpleObjectProperty<>((Date)((Object[])cell.getValue())[1]));
+
+            mainTableView.getColumns().addAll(serviceCol, dateCol);
+            tableData.addAll(results);
+        }
+    }
+
+
+    /*private void executeQuery1() {
         String sql = "SELECT apartment_id, room_count, square_meters FROM rental.apartment WHERE room_count > 2 ORDER BY room_count DESC, square_meters DESC";
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -212,14 +434,14 @@ public class MainWindowController {
 
     private void executeQuery4() {
         String sql = """
-        SELECT o.organization_name, s.service_name, COUNT(p.payment_id) as payment_count
-        FROM rental.payment p
-        JOIN rental.service s ON p.service_code = s.service_code
-        JOIN rental.organization o ON p.organization_id = o.organization_id
-        GROUP BY o.organization_name, s.service_name
-        HAVING COUNT(p.payment_id) > 0
-        ORDER BY payment_count DESC
-        """;
+                SELECT o.organization_name, s.service_name, COUNT(p.payment_id) as payment_count
+                FROM rental.payment p
+                JOIN rental.service s ON p.service_code = s.service_code
+                JOIN rental.organization o ON p.organization_id = o.organization_id
+                GROUP BY o.organization_name, s.service_name
+                HAVING COUNT(p.payment_id) > 0
+                ORDER BY payment_count DESC
+                """;
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             List<Object[]> results = session.createNativeQuery(sql).list();
@@ -251,15 +473,14 @@ public class MainWindowController {
     }
 
 
-
     private void executeQuery5() {
         String sql = """
-        SELECT s.service_name, p.payment_date
-        FROM rental.payment p
-        JOIN rental.service s ON p.service_code = s.service_code
-        WHERE p.payment_date >= '2023-05-17'
-        ORDER BY p.payment_date DESC
-        """;
+                SELECT s.service_name, p.payment_date
+                FROM rental.payment p
+                JOIN rental.service s ON p.service_code = s.service_code
+                WHERE p.payment_date >= '2023-05-17'
+                ORDER BY p.payment_date DESC
+                """;
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             List<Object[]> results = session.createNativeQuery(sql).list();
@@ -282,8 +503,7 @@ public class MainWindowController {
             mainTableView.getColumns().addAll(serviceCol, dateCol);
             tableData.addAll(results);
         }
-    }
-
+    }*/
 
 
     @FXML
@@ -687,13 +907,6 @@ public class MainWindowController {
             return false;
         }
     }
-
-    @FXML
-    private Button queryButton;
-
-    @FXML
-    private Button terminateContractButton;
-
 
     @FXML
     private void handleTerminateContractButton() {

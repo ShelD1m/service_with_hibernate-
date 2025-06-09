@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.dmitry.hibernate_1.controller.ApartmentQueryDialogController"
+            prefWidth="400" prefHeight="200">
+    <VBox spacing="10" padding="10">
+        <HBox spacing="10">
+            <Label text="Минимум комнат"/>
+            <TextField fx:id="roomCountField" />
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Выполнить" onAction="#handleOk"/>
+            <Button text="Отмена" onAction="#handleCancel"/>
+        </HBox>
+    </VBox>
+</AnchorPane>
