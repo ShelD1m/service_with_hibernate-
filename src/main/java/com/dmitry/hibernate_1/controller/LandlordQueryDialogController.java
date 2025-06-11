@@ -4,12 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class LandlordQueryDialogController {
 
-    @FXML private TextField landlordNameField;
+    @FXML
+    private TextField landlordNameField;
 
     private Stage dialogStage;
     private boolean okClicked = false;
@@ -22,10 +20,8 @@ public class LandlordQueryDialogController {
         return okClicked;
     }
 
-    public Map<String, String> getParameters() {
-        Map<String, String> params = new HashMap<>();
-        params.put("landlordNameField", landlordNameField.getText().trim());
-        return params;
+    public String getLandlordName() {
+        return landlordNameField.getText();
     }
 
     @FXML

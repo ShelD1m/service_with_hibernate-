@@ -9,10 +9,16 @@ import java.util.Map;
 
 public class OrganizationQueryDialogController {
 
-    @FXML private TextField orgNameField;
+    @FXML
+    private TextField orgNameField;
 
     private Stage dialogStage;
     private boolean okClicked = false;
+
+    @FXML
+    private void initialize() {
+        System.out.println("OrganizationQueryDialogController: метод initialize() вызван.");
+    }
 
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
@@ -22,20 +28,23 @@ public class OrganizationQueryDialogController {
         return okClicked;
     }
 
-    public Map<String, String> getParameters() {
-        Map<String, String> params = new HashMap<>();
-        params.put("orgNameField", orgNameField.getText().trim());
-        return params;
+    public String getOrganizationName() {
+        if (orgNameField != null) {
+            return orgNameField.getText();
+        }
+        return null;
     }
 
     @FXML
     private void handleOk() {
+        System.out.println("Нажата кнопка 'Выполнить'.");
         okClicked = true;
         dialogStage.close();
     }
 
     @FXML
     private void handleCancel() {
+        System.out.println("Нажата кнопка 'Отмена'.");
         dialogStage.close();
     }
 }
