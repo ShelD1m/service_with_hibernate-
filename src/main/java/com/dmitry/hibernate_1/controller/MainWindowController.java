@@ -114,37 +114,21 @@ public class MainWindowController {
 
 
     private void executeQuery5(LocalDate fromDate) {
-        String sql = "SELECT s.service_name, p.payment_date FROM rental.payment p JOIN rental.service s ON p.service_code = s.service_code WHERE p.payment_date >= :fromDate ORDER BY p.payment_date DESC";
+        String hql = "SELECT s.name, p.date FROM Payment p JOIN p.service s WHERE p.date >= :fromDate ORDER BY p.date DESC";
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<Object[]> results = session.createNativeQuery(sql)
+            List<Object[]> results = session.createQuery(hql, Object[].class)
                     .setParameter("fromDate", fromDate)
                     .list();
 
             tableData.clear();
             mainTableView.getColumns().clear();
+
             TableColumn<Object, String> serviceCol = new TableColumn<>("Услуга");
             serviceCol.setCellValueFactory(cell -> new SimpleStringProperty((String) ((Object[]) cell.getValue())[0]));
 
             TableColumn<Object, LocalDate> dateCol = new TableColumn<>("Дата оплаты");
-            dateCol.setCellValueFactory(cell -> {
-                Object[] row = (Object[]) cell.getValue();
-                Object dateObject = row[1];
-
-                if (dateObject == null) {
-                    return null;
-                }
-
-                if (dateObject instanceof java.util.Date) {
-                    java.util.Date utilDate = (java.util.Date) dateObject;
-                    LocalDate localDate = Instant.ofEpochMilli(utilDate.getTime())
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
-                    return new SimpleObjectProperty<>(localDate);
-                }
-
-                return null;
-            });
+            dateCol.setCellValueFactory(cell -> new SimpleObjectProperty<>((LocalDate) ((Object[]) cell.getValue())[1]));
 
             mainTableView.getColumns().addAll(serviceCol, dateCol);
             tableData.addAll(results);
@@ -155,6 +139,7 @@ public class MainWindowController {
             showAlert(Alert.AlertType.ERROR, "Ошибка запроса", "Не удалось выполнить запрос: " + e.getMessage());
         }
     }
+
 
     private void openPaymentQueryDialog() {
         try {
@@ -178,29 +163,31 @@ public class MainWindowController {
     }
 
     private void executeQuery2(String landlordName) {
-        String sql = "SELECT l.full_name, a.apartment_id FROM rental.landlord l JOIN rental.apartment a ON l.landlord_id = a.landlord_id";
-        if (landlordName != null && !landlordName.isBlank()) {
-            sql += " WHERE l.full_name LIKE :landlordNamePattern";
-        }
-        sql += " ORDER BY l.full_name";
+        String hql = "SELECT l.fullName, a.apartmentId FROM Apartment a JOIN a.landlordId l"
+                + (landlordName != null && !landlordName.isBlank() ? " WHERE l.fullName LIKE :landlordName" : "")
+                + " ORDER BY l.fullName";
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            org.hibernate.query.Query<Object[]> query = session.createNativeQuery(sql);
+            org.hibernate.query.Query<Object[]> query = session.createQuery(hql, Object[].class);
 
             if (landlordName != null && !landlordName.isBlank()) {
-                query.setParameter("landlordNamePattern", "%" + landlordName + "%");
+                query.setParameter("landlordName", "%" + landlordName + "%");
             }
 
             List<Object[]> results = query.list();
 
             tableData.clear();
             mainTableView.getColumns().clear();
+
             TableColumn<Object, String> nameCol = new TableColumn<>("ФИО");
             nameCol.setCellValueFactory(cell -> new SimpleStringProperty((String) ((Object[]) cell.getValue())[0]));
+
             TableColumn<Object, Integer> idCol = new TableColumn<>("ID Квартиры");
             idCol.setCellValueFactory(cell -> new SimpleObjectProperty<>((Integer) ((Object[]) cell.getValue())[1]));
+
             mainTableView.getColumns().addAll(nameCol, idCol);
             tableData.addAll(results);
+
             entityLabel.setText("Запрос: Арендодатели и их квартиры");
 
         } catch (Exception e) {
@@ -208,6 +195,7 @@ public class MainWindowController {
             showAlert(Alert.AlertType.ERROR, "Ошибка запроса", "Не удалось выполнить запрос: " + e.getMessage());
         }
     }
+
 
     private void openLandlordQueryDialog() {
         try {
@@ -228,27 +216,21 @@ public class MainWindowController {
         }
     }
 
-    private void executeQuery3(String tenantName) {
-        String sql = "SELECT t.full_name FROM rental.tenant t WHERE t.tenant_id IN (SELECT s.tenant_id FROM rental.sign_contract s)";
-        if (tenantName != null && !tenantName.isBlank()) {
-            sql += " AND t.full_name LIKE :tenantNamePattern";
-        }
-        sql += " ORDER BY t.full_name";
+    private void executeQuery3() {
+        String hql = "SELECT DISTINCT t.fullName FROM Tenant t JOIN t.contractSignings s";
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            org.hibernate.query.Query<String> query = session.createNativeQuery(sql);
-
-            if (tenantName != null && !tenantName.isBlank()) {
-                query.setParameter("tenantNamePattern", "%" + tenantName + "%");
-            }
-            List<String> results = query.list();
+            List<String> results = session.createQuery(hql, String.class).list();
 
             tableData.clear();
             mainTableView.getColumns().clear();
+
             TableColumn<Object, String> nameCol = new TableColumn<>("ФИО жильца");
             nameCol.setCellValueFactory(cell -> new SimpleStringProperty((String) cell.getValue()));
+
             mainTableView.getColumns().add(nameCol);
             tableData.addAll(results);
+
             entityLabel.setText("Запрос: Жильцы с договорами");
 
         } catch (Exception e) {
@@ -257,23 +239,9 @@ public class MainWindowController {
         }
     }
 
+
     private void openTenantQueryDialog() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/TenantQueryDialog.fxml"));
-            Parent page = loader.load();
-            TenantQueryDialogController controller = loader.getController();
-
-            Stage dialogStage = createDialogStage("Фильтр жильцов по имени", page);
-            controller.setDialogStage(dialogStage);
-            dialogStage.showAndWait();
-
-            if (controller.isOkClicked()) {
-                String name = controller.getTenantName();
-                executeQuery3(name);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        executeQuery3();
     }
 
 
@@ -316,17 +284,20 @@ public class MainWindowController {
             return;
         }
 
-        String sql = "SELECT o.organization_name, s.service_name, COUNT(p.payment_id) as payment_count " +
-                "FROM rental.payment p JOIN rental.service s ON p.service_code = s.service_code " +
-                "JOIN rental.organization o ON p.organization_id = o.organization_id " +
-                "WHERE o.organization_name LIKE :orgNameLikePattern " +
-                "GROUP BY o.organization_name, s.service_name " +
-                "HAVING COUNT(p.payment_id) > 0 ORDER BY payment_count DESC";
+        String hql = """
+        SELECT o.organizationName, s.name, COUNT(p.id)
+        FROM Payment p
+        JOIN p.organization o
+        JOIN p.service s
+        WHERE o.organizationName LIKE :orgNamePattern
+        GROUP BY o.organizationName, s.name
+        HAVING COUNT(p.id) > 0
+        ORDER BY COUNT(p.id) DESC
+        """;
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-
-            List<Object[]> results = session.createNativeQuery(sql)
-                    .setParameter("orgNameLikePattern", "%" + organizationName + "%") // Передаем параметр
+            List<Object[]> results = session.createQuery(hql, Object[].class)
+                    .setParameter("orgNamePattern", "%" + organizationName + "%")
                     .list();
 
             tableData.clear();
@@ -338,8 +309,10 @@ public class MainWindowController {
 
             TableColumn<Object, String> orgCol = new TableColumn<>("Организация");
             orgCol.setCellValueFactory(cell -> new SimpleStringProperty((String) ((Object[]) cell.getValue())[0]));
+
             TableColumn<Object, String> serviceCol = new TableColumn<>("Услуга");
             serviceCol.setCellValueFactory(cell -> new SimpleStringProperty((String) ((Object[]) cell.getValue())[1]));
+
             TableColumn<Object, Long> countCol = new TableColumn<>("Кол-во оплат");
             countCol.setCellValueFactory(cell -> new SimpleObjectProperty<>(((Number) ((Object[]) cell.getValue())[2]).longValue()));
 
@@ -353,6 +326,7 @@ public class MainWindowController {
             showAlert(Alert.AlertType.ERROR, "Ошибка запроса", "Не удалось выполнить запрос: " + e.getMessage());
         }
     }
+
 
     private Stage createDialogStage(String title, Parent content) {
         Stage dialogStage = new Stage();
