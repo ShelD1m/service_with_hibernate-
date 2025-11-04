@@ -114,13 +114,13 @@ src/main/java/com/dmitry/hibernate_1/
 <p align="center">
   <img src="https://github.com/user-attachments/assets/917df57b-9aab-431e-b5d2-b26d14df0246" width="800"/>
   <br/>
-  <em>Изменение данных услуги</em>
+  <em>Выбор записи для удаления</em>
 </p>
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/0efe7cfb-ea8c-4b59-9274-73c7a3ee0495" width="800"/>
   <br/>
-  <em>Выбор записи для удаления</em>
+  <em>Подтверждение удаления</em>
 </p>
 
 <p align="center">
