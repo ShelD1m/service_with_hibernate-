@@ -126,13 +126,13 @@ src/main/java/com/dmitry/hibernate_1/
 <p align="center">
   <img src="https://github.com/user-attachments/assets/fc352fc5-a668-467b-bcfe-d8b1b3428077" width="800"/>
   <br/>
-  <em>Подтверждение удаления записи</em>
+  <em>ERD-модель базы данных</em>
 </p>
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/4e4f6f56-de75-40e6-8edf-62180ea91116" width="800"/>
   <br/>
-  <em>ERD-модель базы данных</em>
+  <em>ER-модели в нотациях Чена и IDEF1X</em>
 </p>
 
 <p align="center">
