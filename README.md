@@ -76,75 +76,69 @@ src/main/java/com/dmitry/hibernate_1/
 ## Интерфейс приложения
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/05a63995-b8ec-4a6d-ae97-0aee1fc2c9b0" width="800"/>
+  <img src="https://github.com/user-attachments/assets/1f852534-d915-4352-9c3d-eeefb0023afa" width="800"/>
   <br/>
   <em>Главное окно приложения</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/909b8454-b78f-404e-adb7-1bf368fe880a" width="800"/>
+  <img src="https://github.com/user-attachments/assets/0e099435-a68b-4563-a497-9ae63b819329" width="800"/>
   <br/>
   <em>Просмотр таблицы с данными</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/64406b67-d82d-41ce-9874-ba31da36b96d" width="800"/>
+  <img src="https://github.com/user-attachments/assets/7e6ba715-ddce-41ee-8fca-fed0353a16b0" width="800"/>
   <br/>
   <em>Поиск квартиры по ID</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/79940a0c-5d3f-4a8a-8670-692553eafe64" width="800"/>
+  <img src="https://github.com/user-attachments/assets/7a197fb2-f4ce-4f29-97b8-05759ec876f3" width="800"/>
   <br/>
   <em>Добавление квартиры</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/fbec1923-9487-462e-abcd-c6d78c6b45fd" width="800"/>
+  <img src="https://github.com/user-attachments/assets/67b98251-0753-4a9a-b906-0df5cd7eb878" width="800"/>
   <br/>
-  <em>Проверка корректности введённых данных</em>
+  <em>Ввод данных при добавлении квартиры</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ca5a93fe-6ebb-4fcf-b4a4-938c83a99843" width="800"/>
+  <img src="https://github.com/user-attachments/assets/53022e28-971b-47f5-bd0f-4fa257b87179" width="800"/>
   <br/>
-  <em>Список доступных арендодателей при добавлении</em>
+  <em>Проверка добавленной записи в таблице</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/3bab68ec-8d77-402e-83e6-f00ebef87729" width="800"/>
+  <img src="https://github.com/user-attachments/assets/917df57b-9aab-431e-b5d2-b26d14df0246" width="800"/>
   <br/>
-  <em>Редактирование услуги</em>
+  <em>Изменение данных услуги</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e715fa8a-54e9-4e9d-9440-1ea31028b211" width="800"/>
+  <img src="https://github.com/user-attachments/assets/0efe7cfb-ea8c-4b59-9274-73c7a3ee0495" width="800"/>
   <br/>
-  <em>Удаление записи из таблицы</em>
+  <em>Выбор записи для удаления</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/3201a46f-38d0-4957-9f0c-bc8328436548" width="800"/>
+  <img src="https://github.com/user-attachments/assets/fc352fc5-a668-467b-bcfe-d8b1b3428077" width="800"/>
   <br/>
-  <em>Окно подтверждения удаления</em>
+  <em>Подтверждение удаления записи</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/defd1478-3b19-4e15-882a-e238b3270d5a" width="800"/>
-  <br/>
-  <em>Результат SQL-запроса в приложении</em>
-</p>
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/2a703d81-c141-4fba-8767-14a3ca83af75" width="800"/>
+  <img src="https://github.com/user-attachments/assets/4e4f6f56-de75-40e6-8edf-62180ea91116" width="800"/>
   <br/>
   <em>ERD-модель базы данных</em>
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/f59ce052-0be3-46e0-93d8-c0121daa06ab" width="800"/>
+  <img src="https://github.com/user-attachments/assets/4bc1ca5e-ac0b-4d6f-a655-e4332d3eaa6d" width="800"/>
   <br/>
-  <em>Пример вывода результатов запроса</em>
+  <em>ER-модели в нотациях Чена и IDEF1X</em>
 </p>
 
 ---
