@@ -108,7 +108,7 @@ src/main/java/com/dmitry/hibernate_1/
 <p align="center">
   <img src="https://github.com/user-attachments/assets/53022e28-971b-47f5-bd0f-4fa257b87179" width="800"/>
   <br/>
-  <em>Проверка добавленной записи в таблице</em>
+  <em>Изменение данных услуги</em>
 </p>
 
 <p align="center">
